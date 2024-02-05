@@ -1,0 +1,14 @@
+/Users/mert/github/Private_Chat_APP/Client/bin/Release/net8.0/win-x64/Client.exe
+/Users/mert/github/Private_Chat_APP/Client/bin/Release/net8.0/win-x64/Client.deps.json
+/Users/mert/github/Private_Chat_APP/Client/bin/Release/net8.0/win-x64/Client.runtimeconfig.json
+/Users/mert/github/Private_Chat_APP/Client/bin/Release/net8.0/win-x64/Client.dll
+/Users/mert/github/Private_Chat_APP/Client/bin/Release/net8.0/win-x64/Client.pdb
+/Users/mert/github/Private_Chat_APP/Client/obj/Release/net8.0/win-x64/Client.GeneratedMSBuildEditorConfig.editorconfig
+/Users/mert/github/Private_Chat_APP/Client/obj/Release/net8.0/win-x64/Client.AssemblyInfoInputs.cache
+/Users/mert/github/Private_Chat_APP/Client/obj/Release/net8.0/win-x64/Client.AssemblyInfo.cs
+/Users/mert/github/Private_Chat_APP/Client/obj/Release/net8.0/win-x64/Client.csproj.CoreCompileInputs.cache
+/Users/mert/github/Private_Chat_APP/Client/obj/Release/net8.0/win-x64/Client.dll
+/Users/mert/github/Private_Chat_APP/Client/obj/Release/net8.0/win-x64/refint/Client.dll
+/Users/mert/github/Private_Chat_APP/Client/obj/Release/net8.0/win-x64/Client.pdb
+/Users/mert/github/Private_Chat_APP/Client/obj/Release/net8.0/win-x64/Client.genruntimeconfig.cache
+/Users/mert/github/Private_Chat_APP/Client/obj/Release/net8.0/win-x64/ref/Client.dll

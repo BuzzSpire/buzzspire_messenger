@@ -1,0 +1,22 @@
+.chat-screen {
+  height: 50%;
+  width: 100%;
+}
+
+@keyframes opacitiy {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    z-index: -1;
+  }
+}
+
+.image {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: opacitiy 3s forwards;
+}

@@ -1,0 +1,12 @@
+/Users/mert/github/Private_Chat_APP/WebSocket/bin/Release/net8.0/win-x64/publish/WebSocket.exe
+/Users/mert/github/Private_Chat_APP/WebSocket/bin/Release/net8.0/win-x64/publish/appsettings.Development.json
+/Users/mert/github/Private_Chat_APP/WebSocket/bin/Release/net8.0/win-x64/publish/appsettings.json
+/Users/mert/github/Private_Chat_APP/WebSocket/bin/Release/net8.0/win-x64/publish/WebSocket.dll
+/Users/mert/github/Private_Chat_APP/WebSocket/bin/Release/net8.0/win-x64/publish/WebSocket.deps.json
+/Users/mert/github/Private_Chat_APP/WebSocket/bin/Release/net8.0/win-x64/publish/WebSocket.runtimeconfig.json
+/Users/mert/github/Private_Chat_APP/WebSocket/bin/Release/net8.0/win-x64/publish/WebSocket.pdb
+/Users/mert/github/Private_Chat_APP/WebSocket/bin/Release/net8.0/win-x64/publish/Microsoft.AspNetCore.OpenApi.dll
+/Users/mert/github/Private_Chat_APP/WebSocket/bin/Release/net8.0/win-x64/publish/Microsoft.OpenApi.dll
+/Users/mert/github/Private_Chat_APP/WebSocket/bin/Release/net8.0/win-x64/publish/Swashbuckle.AspNetCore.Swagger.dll
+/Users/mert/github/Private_Chat_APP/WebSocket/bin/Release/net8.0/win-x64/publish/Swashbuckle.AspNetCore.SwaggerGen.dll
+/Users/mert/github/Private_Chat_APP/WebSocket/bin/Release/net8.0/win-x64/publish/Swashbuckle.AspNetCore.SwaggerUI.dll

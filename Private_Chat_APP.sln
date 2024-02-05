@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{70F465F0-743C-4D1F-B282-D5F295E9D88D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{7BA1D634-A9CF-4D3D-9629-9C90A614806C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSocket", "WebSocket\WebSocket.csproj", "{6E2B9CDA-341F-4049-B334-D4839A93B855}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{70F465F0-743C-4D1F-B282-D5F295E9D88D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70F465F0-743C-4D1F-B282-D5F295E9D88D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70F465F0-743C-4D1F-B282-D5F295E9D88D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70F465F0-743C-4D1F-B282-D5F295E9D88D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BA1D634-A9CF-4D3D-9629-9C90A614806C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BA1D634-A9CF-4D3D-9629-9C90A614806C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BA1D634-A9CF-4D3D-9629-9C90A614806C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BA1D634-A9CF-4D3D-9629-9C90A614806C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E2B9CDA-341F-4049-B334-D4839A93B855}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E2B9CDA-341F-4049-B334-D4839A93B855}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E2B9CDA-341F-4049-B334-D4839A93B855}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E2B9CDA-341F-4049-B334-D4839A93B855}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
