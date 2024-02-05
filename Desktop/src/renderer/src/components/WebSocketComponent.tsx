@@ -65,6 +65,9 @@ const WebSocketComponent: FC<WebSocketComponentProps> = ({ username }) => {
       </div>
       <div className="input-container">
         <input
+          onKeyPress={(e) => {
+            e.key === 'Enter' && sendMessage()
+          }}
           type="text"
           placeholder="text here"
           value={message}
