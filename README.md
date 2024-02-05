@@ -41,9 +41,8 @@ Contemporary chat applications typically manage all communication through their 
 
 ### Contribution
 
-1. Fork this repository.
-2. Add new features or fix bugs.
-3. Create a pull request.
+This project is the [Contributing Guidelines 🚀](https://github.com/tw4/Private_Chat_APP/wiki/Contribution-Guidelines)
+
 
 ### License
 
