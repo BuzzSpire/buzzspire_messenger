@@ -1,5 +1,7 @@
 # Private_Chat_APP
 
+
+
 Private_Chat_APP is a desktop application that enables real-time messaging by establishing communication through your own server.
 
 ## Technologies
@@ -32,6 +34,10 @@ Contemporary chat applications typically manage all communication through their 
 1. Start the backend.
 2. Launch the desktop application.
 3. Communicate securely between users through the application.
+
+### screen
+![Ekran Resmi 2024-02-05 09 39 08](https://github.com/tw4/Private_Chat_APP/assets/88425310/5310a0f5-4b16-4d9d-a909-c3715e60a694)
+![Ekran Resmi 2024-02-05 09 39 47](https://github.com/tw4/Private_Chat_APP/assets/88425310/849cfd34-cd86-44d4-93c1-3f3f582f0bd5)
 
 ### Contribution
 
