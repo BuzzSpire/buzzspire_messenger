@@ -23,6 +23,7 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
+    "antd": "^5.14.0",
     "socket.io-client": "^4.7.4",
     "websocket": "^1.0.34"
   },

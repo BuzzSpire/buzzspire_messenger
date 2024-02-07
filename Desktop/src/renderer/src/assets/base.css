@@ -12,8 +12,6 @@ html {
 
 body {
   font-family: 'Ubuntu Mono', monospace;
-  background-color: #11201b;
-  color: #36a458;
 }
 
 /* width */
@@ -21,14 +19,13 @@ body {
   width: 10px;
 }
 
-/* Track */
 ::-webkit-scrollbar-track {
-  background: #11201b;
+  background: #ffffff;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #36a458;
+  background: #434242;
 }
 
 /* Handle on hover */

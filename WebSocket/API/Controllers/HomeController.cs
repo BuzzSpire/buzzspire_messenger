@@ -9,8 +9,8 @@ namespace WebSocket.Controllers
     [Route("/")]
     public class HomeController : ControllerBase
     {
-        private static List<WS.WebSocket> _connections = new List<WS.WebSocket>();
-        
+        private static Dictionary<String, WS.WebSocket> _connections = new Dictionary<String, WS.WebSocket>();
+       
         [HttpGet]
         public IActionResult Index()
         {
@@ -23,7 +23,6 @@ namespace WebSocket.Controllers
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
                 var ws = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                _connections.Add(ws);
 
                 var buffer = new byte[1024 * 4];
                 var result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
@@ -31,12 +30,27 @@ namespace WebSocket.Controllers
                 while (!result.CloseStatus.HasValue)
                 {
                     var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                    var brodcastMessage = new { message = message, date = DateTime.Now };
+                    var messageJson = JsonSerializer.Deserialize<Dictionary<string, string>>(message);
+                    
+                    message = messageJson["message"];
+                    var userName = messageJson["userName"];
+                    
+                    if (!_connections.ContainsKey(userName))
+                    {
+                        _connections.Add(userName, ws);
+                    }
+                    
+                    var brodcastMessage = new {userName= userName ,message = message, date = DateTime.Now, onlineUsers = _connections.Keys.ToList()};
                     await Broadcast(JsonSerializer.Serialize(brodcastMessage));
                     result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
                     if (result.CloseStatus.HasValue)
                     {
-                        _connections.Remove(ws);
+                        _connections.Remove(userName);
+                        await Broadcast(JsonSerializer.Serialize(new
+                        {
+                            userName = userName, message = "left the chat", date = DateTime.Now,
+                            onlineUsers = _connections.Keys.ToList()
+                        }));
                     }
                 }
             }
@@ -44,13 +58,12 @@ namespace WebSocket.Controllers
         
         private async Task Broadcast(string message)
         {
-            Console.WriteLine(_connections.Count); 
             var buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
             foreach (var ws in _connections)
             {
-                if (ws.State == WS.WebSocketState.Open)
+                if (ws.Value.State == WS.WebSocketState.Open)
                 {
-                    await ws.SendAsync(buffer, WS.WebSocketMessageType.Text, true, CancellationToken.None);
+                    await ws.Value.SendAsync(buffer, WS.WebSocketMessageType.Text, true, CancellationToken.None);
                 }
             }
         }
