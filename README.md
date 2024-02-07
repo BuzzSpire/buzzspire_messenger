@@ -36,8 +36,8 @@ Contemporary chat applications typically manage all communication through their 
 3. Communicate securely between users through the application.
 
 ### screen
-![Ekran Resmi 2024-02-05 09 39 08](https://github.com/tw4/Private_Chat_APP/assets/88425310/5310a0f5-4b16-4d9d-a909-c3715e60a694)
-![Ekran Resmi 2024-02-05 09 39 47](https://github.com/tw4/Private_Chat_APP/assets/88425310/849cfd34-cd86-44d4-93c1-3f3f582f0bd5)
+https://github.com/tw4/Private_Chat_APP/assets/88425310/123fff58-ce90-4741-8c7f-d7d67e366df1
+
 
 ### Contribution
 
