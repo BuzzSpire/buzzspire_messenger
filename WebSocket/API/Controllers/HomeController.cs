@@ -2,15 +2,21 @@ using WS = System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using WebSocket.Business.Abstract;
 
-namespace WebSocket.Controllers
+namespace WebSocket.API.Controllers
 {
     [ApiController]
     [Route("/")]
     public class HomeController : ControllerBase
     {
-        private static Dictionary<String, WS.WebSocket> _connections = new Dictionary<String, WS.WebSocket>();
-       
+        private IWebSocketServices _webSocketServices;
+
+        public HomeController(IWebSocketServices webSocketServices)
+        {
+            _webSocketServices = webSocketServices;
+        }
+
         [HttpGet]
         public IActionResult Index()
         {
@@ -22,49 +28,51 @@ namespace WebSocket.Controllers
         {
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
-                var ws = await HttpContext.WebSockets.AcceptWebSocketAsync();
+                WS.WebSocket ws = await HttpContext.WebSockets.AcceptWebSocketAsync();
 
                 var buffer = new byte[1024 * 4];
-                var result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                WS.WebSocketReceiveResult result =
+                    await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
                 while (!result.CloseStatus.HasValue)
                 {
-                    var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                    var messageJson = JsonSerializer.Deserialize<Dictionary<string, string>>(message);
-                    
-                    message = messageJson["message"];
-                    var userName = messageJson["userName"];
-                    
-                    if (!_connections.ContainsKey(userName))
+                    string message = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                    Dictionary<string, string>? messageJson =
+                        JsonSerializer.Deserialize<Dictionary<string, string>>(message);
+
+                    if (messageJson != null)
                     {
-                        _connections.Add(userName, ws);
+                        string userName = messageJson["userName"];
+
+                        _webSocketServices.SaveConnection(userName, ws);
+
+                        string broadcastMessage = JsonSerializer.Serialize(new
+                        { 
+                            userName,
+                            message = messageJson["message"],
+                            date = DateTime.Now.ToString("HH:mm"),
+                            onlineUsers = _webSocketServices.GetOnlineUsers()
+                        });
+                        await _webSocketServices.Broadcast(broadcastMessage);
                     }
-                    
-                    var brodcastMessage = new {userName= userName ,message = message, date = DateTime.Now, onlineUsers = _connections.Keys.ToList()};
-                    await Broadcast(JsonSerializer.Serialize(brodcastMessage));
+
                     result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-                    if (result.CloseStatus.HasValue)
-                    {
-                        _connections.Remove(userName);
-                        await Broadcast(JsonSerializer.Serialize(new
-                        {
-                            userName = userName, message = "left the chat", date = DateTime.Now,
-                            onlineUsers = _connections.Keys.ToList()
-                        }));
-                    }
                 }
-            }
-        }
-        
-        private async Task Broadcast(string message)
-        {
-            var buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
-            foreach (var ws in _connections)
-            {
-                if (ws.Value.State == WS.WebSocketState.Open)
+
+                if (result.CloseStatus.HasValue)
                 {
-                    await ws.Value.SendAsync(buffer, WS.WebSocketMessageType.Text, true, CancellationToken.None);
+                    string closedUserName = _webSocketServices.GetUserNameByConnection(ws);
+                    _webSocketServices.RemoveConnection(closedUserName);
+                    await _webSocketServices.Broadcast(JsonSerializer.Serialize(new
+                    {
+                        userName = closedUserName,
+                        message = "left the chat",
+                        date = DateTime.Now,
+                        onlineUsers = _webSocketServices.GetOnlineUsers()
+                    }));
                 }
+
+                await ws.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
             }
         }
     }

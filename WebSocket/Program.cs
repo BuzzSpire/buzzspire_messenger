@@ -1,3 +1,8 @@
+using WebSocket.Business.Abstract;
+using WebSocket.Business.Concrete;
+using WebSocket.Data.Abstract;
+using WebSocket.Data.Concrete;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
+
+//scoped service
+builder.Services.AddScoped<IWebSocketServices, WebSocketServices>();
+builder.Services.AddScoped<IConnectionsDbContext, ConnectionsDbContext>();
 
 // allow all cross-origin requests
 builder.Services.AddCors(options =>
