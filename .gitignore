@@ -4,3 +4,5 @@ Client/obj/Debug/net8.0
 Server/obj/Debug/net8.0
 WebSocket/bin/Debug/net8.0
 WebSocket/obj/Debug/net8.0
+Server/obj/Debug/net8.0
+Client/obj/Debug/net8.0
