@@ -2,21 +2,22 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using Backend.Business.Abstract;
+using Backend.Entity.Concrete;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.API.Controllers;
 
 [ApiController]
-[Route("/message/")]
-public class MessageController: ControllerBase
+[Route("api/[controller]")]
+public class MessageController : ControllerBase
 {
-    private readonly IWebSocketServices _webSocketServices;
-    
-    public MessageController(IWebSocketServices webSocketServices)
+    private readonly IMessageServices _messageServices;
+
+    public MessageController(IMessageServices messageServices)
     {
-        _webSocketServices = webSocketServices;
+        _messageServices = messageServices;
     }
-    
+
     [HttpGet("ws")]
     public async Task Get()
     {
@@ -30,43 +31,37 @@ public class MessageController: ControllerBase
 
             while (!result.CloseStatus.HasValue)
             {
-                string message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                Dictionary<string, string>? messageJson =
-                    JsonSerializer.Deserialize<Dictionary<string, string>>(message);
+                Message message =
+                    JsonSerializer.Deserialize<Message>(Encoding.UTF8.GetString(buffer, 0, result.Count)) ??
+                    throw new InvalidOperationException();
 
-                if (messageJson != null)
+                _messageServices.SaveConnection(message.SenderId, ws);
+
+                string broadcastMessage = JsonSerializer.Serialize(new Message
                 {
-                    string userName = messageJson["userName"];
-
-                    _webSocketServices.SaveConnection(userName, ws);
-
-                    string broadcastMessage = JsonSerializer.Serialize(new
-                    {
-                        userName,
-                        message = messageJson["message"],
-                        date = DateTime.Now.ToString("HH:mm"),
-                        onlineUsers = _webSocketServices.GetOnlineUsers()
-                    });
-                    await _webSocketServices.Broadcast(broadcastMessage);
-                }
+                    SenderId = message.SenderId,
+                    Content = message.Content,
+                    Date = DateTime.Now.ToString("HH:mm"),
+                    ReceiverId = message.ReceiverId
+                });
+                await _messageServices.SendToUser(message.SenderId, broadcastMessage, message.ReceiverId);
 
                 result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
             }
 
             if (result.CloseStatus.HasValue)
             {
-                string closedUserName = _webSocketServices.GetUserNameByConnection(ws);
-                _webSocketServices.RemoveConnection(closedUserName);
-                await _webSocketServices.Broadcast(JsonSerializer.Serialize(new
-                {
-                    userName = closedUserName,
-                    message = "left the chat",
-                    date = DateTime.Now,
-                    onlineUsers = _webSocketServices.GetOnlineUsers()
-                }));
+                long closedUser = _messageServices.GetIdByConnection(ws);
+                _messageServices.RemoveConnection(closedUser);
             }
 
             await ws.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
         }
+    }
+    
+    [HttpPost("send")]
+    public async Task<ActionResult> Send()
+    {
+        return Ok();
     }
 }
