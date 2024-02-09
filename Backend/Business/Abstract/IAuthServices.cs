@@ -5,6 +5,6 @@ namespace Backend.Business.Abstract;
 
 public interface IAuthServices
 {
-    public string Login(string email, string password);
+    public Task<IActionResult> Login(LoginRequest request);
     public Task<IActionResult> Register(RegisterRequest registerRequest);
 }

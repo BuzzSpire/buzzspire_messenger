@@ -23,9 +23,8 @@ public class AuthController: ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult> Login()
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        string token = _authServices.Login($"admin@example.com", "123456");
-        return Ok(token);
+        return await _authServices.Login(request);
     }
 }
