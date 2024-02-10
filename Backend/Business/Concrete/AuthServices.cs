@@ -74,4 +74,22 @@ public class AuthServices : IAuthServices
 
         return new OkObjectResult(new { token = _jwtServices.GenerateJwt(user.Id, user.UserName) });
     }
+
+    public async Task<IActionResult> Auth(string token)
+    {
+        if (!_jwtServices.IsTokenValid(token))
+        {
+            return new UnauthorizedObjectResult((new { error = "Token is not valid" }));
+        }
+        
+        var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u => u.Id == _jwtServices.GetUserIdFromToken(token));
+        
+        if (user == null)
+        {
+            return new NotFoundObjectResult(new { error = "User not found" });
+        }
+        
+        return new OkObjectResult(new { isvalidated = true});
+        
+    }
 }
