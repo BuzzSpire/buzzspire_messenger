@@ -22,7 +22,7 @@ public class AuthServices : IAuthServices
     public async Task<IActionResult> Login(LoginRequest request)
     {
         var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u =>
-            u.UserName == request.UserName && u.Password == request.Password);
+            u.UserName == request.UserName && u.Password == _jwtServices.EncryptPassword(request.Password));
         if (user == null)
         {
             return new BadRequestObjectResult(new { error = "UserName or Password wrong" });
@@ -40,6 +40,14 @@ public class AuthServices : IAuthServices
         {
             return new BadRequestObjectResult(new { error = "User already exists" });
         }
+
+        if (string.IsNullOrEmpty(registerRequest.UserName) || string.IsNullOrEmpty(registerRequest.Password) ||
+            string.IsNullOrEmpty(registerRequest.FullName))
+        {
+            return new BadRequestObjectResult(new { error = "Username, Password and Fullname can not be empty" });
+        }
+
+        registerRequest.Password = _jwtServices.EncryptPassword(registerRequest.Password);
 
         _applicationDbContext.Users.Add(new User
         {

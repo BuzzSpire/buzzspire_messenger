@@ -6,4 +6,5 @@ public interface IJwtServices
     public long GetUserIdFromToken(string token);
     public string GetEmailFromToken(string token);
     public bool IsTokenValid(string token);
+    public string EncryptPassword(string password);
 }

@@ -19,7 +19,7 @@ public class MessageController : ControllerBase
     }
 
     [HttpGet("ws")]
-    public async Task Get()
+    public async Task Get([FromHeader] string token)
     {
         if (HttpContext.WebSockets.IsWebSocketRequest)
         {

@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Backend.Business.Abstract;
 using Microsoft.IdentityModel.Tokens;
@@ -77,5 +78,14 @@ public class JwtServices: IJwtServices
         {
             return false;
         }
+    }
+
+    public string EncryptPassword(string password)
+    {
+        // sha256 encryption
+        using var sha256 = SHA256.Create();
+        var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+        var hash = BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
+        return hash;
     }
 }
