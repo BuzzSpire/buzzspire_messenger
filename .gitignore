@@ -6,3 +6,7 @@ WebSocket/bin/Debug/net8.0
 WebSocket/obj/Debug/net8.0
 Server/obj/Debug/net8.0
 Client/obj/Debug/net8.0
+Backend/appsettings.json
+Backend/Migrations
+Backend/bin/Debug/net8.0
+Desktop/src/renderer/src/.env

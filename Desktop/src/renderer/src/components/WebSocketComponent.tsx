@@ -11,21 +11,14 @@ import {
   Typography,
   message as antdMessage
 } from 'antd'
-import { UserOutlined } from '@ant-design/icons'
 
 type MenuItem = Required<MenuProps>['items'][number]
 
-type ReceivedMessage = {
-  userName: string
-  message: string
-  date: string
-  onlineUsers?: string[]
-}
-
 type Message = {
-  userName: string
-  message: string
-  date: string
+  SenderId: number
+  Content: string
+  Date: string
+  ReceiverId: number
 }
 
 interface WebSocketComponentProps {
@@ -57,17 +50,9 @@ const WebSocketComponent: FC<WebSocketComponentProps> = ({ username }) => {
 
     //  message received
     ws.onmessage = (event): void => {
-      const receivedMessage = event.data
-      const receivedMessageObject: ReceivedMessage = JSON.parse(receivedMessage)
-      setMessagesList((prevMessages) => [...prevMessages, receivedMessageObject])
-
-      if (receivedMessageObject.onlineUsers) {
-        setOnlineUsers(
-          receivedMessageObject.onlineUsers.map((user) => getItem(user, user, <UserOutlined />))
-        )
-      }
-
-      console.log(`Received: ${receivedMessage}`)
+      const msg: Message = JSON.parse(event.data)
+      setMessagesList((prevMessages) => [...prevMessages, msg])
+      console.log(`Received: ${event.data}`)
     }
 
     // WebSocket connection closed
@@ -93,9 +78,10 @@ const WebSocketComponent: FC<WebSocketComponentProps> = ({ username }) => {
     }
 
     if (socket) {
-      const data = {
-        userName: username,
-        message: message
+      const data: Message = {
+        SenderId: 1,
+        Content: message,
+        Date: ''
       }
       socket.send(JSON.stringify(data))
       setMessage('')
@@ -164,9 +150,9 @@ const WebSocketComponent: FC<WebSocketComponentProps> = ({ username }) => {
                 >
                   <ChatItem
                     key={index}
-                    usernName={username === message.userName ? 'You' : message.userName}
-                    message={message.message}
-                    date={message.date}
+                    usernName={username === message.userName ? 'You' : message.SenderId}
+                    message={message.Content}
+                    date={message.Date}
                     color={message.userName === username ? '#1890ff' : '#6cb8fb'}
                   />
                 </Flex>
