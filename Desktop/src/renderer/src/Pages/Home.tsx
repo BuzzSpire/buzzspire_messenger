@@ -36,11 +36,10 @@ const WebSocketComponent: FC<WebSocketComponentProps> = ({ username }) => {
   const { Sider, Content } = Layout
 
   useEffect(() => {
-    // get WebSocket IP from localStorage
-    const webSocketIp = localStorage.getItem('webSocketIp')
 
     // WebSocket  connection opened
-    const ws = new WebSocket(`ws://${webSocketIp}`)
+    const ws = new WebSocket(`ws://${import.meta.env.VITE_API_URL}/ws`)
+    })
 
     // when the connection is open, send some data to the server
     ws.onopen = (): void => {

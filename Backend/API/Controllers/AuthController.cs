@@ -1,5 +1,6 @@
 using Backend.Business.Abstract;
 using Backend.Entity.DTO.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.API.Controllers;
@@ -26,5 +27,11 @@ public class AuthController: ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         return await _authServices.Login(request);
+    }
+ 
+    [HttpGet]
+    public async Task<IActionResult> Auth([FromHeader] string token)
+    {
+        return await _authServices.Auth(token);
     }
 }
