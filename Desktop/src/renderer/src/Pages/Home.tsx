@@ -1,183 +1,31 @@
-import { useState, useEffect, FC } from 'react'
-import '../assets/WebSocketComponent.css'
-import { ChatItem } from './ChatItem'
-import {
-  Layout,
-  Menu,
-  Flex,
-  Input,
-  Button,
-  MenuProps,
-  Typography,
-  message as antdMessage
-} from 'antd'
+import { Flex, Spin } from 'antd'
+import { useEffect, useState } from 'react'
+import { useAuth } from '../hooks/useAuth'
+import { MainLayout } from '../layout/MainLayout'
 
-type MenuItem = Required<MenuProps>['items'][number]
-
-type Message = {
-  SenderId: number
-  Content: string
-  Date: string
-  ReceiverId: number
-}
-
-interface WebSocketComponentProps {
-  username: string
-}
-
-const WebSocketComponent: FC<WebSocketComponentProps> = ({ username }) => {
-  const [socket, setSocket] = useState<WebSocket | null>(null)
-  const [message, setMessage] = useState<string>('')
-  const [messagesList, setMessagesList] = useState<Message[]>([])
-  const [collapsed, setCollapsed] = useState(false)
-  const [onlineUsers, setOnlineUsers] = useState<MenuItem[]>([])
-
-  const [messageApi, contextHolder] = antdMessage.useMessage()
-  const { Sider, Content } = Layout
+export const Home = (): JSX.Element => {
+  const [isLogin, setIsLogin] = useState(true)
 
   useEffect(() => {
-
-    // WebSocket  connection opened
-    const ws = new WebSocket(`ws://${import.meta.env.VITE_API_URL}/ws`)
-    })
-
-    // when the connection is open, send some data to the server
-    ws.onopen = (): void => {
-      console.log('WebSocket connection opened')
-      ws.send(JSON.stringify({ userName: username, message: 'joined the chat' }))
-    }
-
-    //  message received
-    ws.onmessage = (event): void => {
-      const msg: Message = JSON.parse(event.data)
-      setMessagesList((prevMessages) => [...prevMessages, msg])
-      console.log(`Received: ${event.data}`)
-    }
-
-    // WebSocket connection closed
-    ws.onclose = (): void => {
-      console.log('WebSocket connection closed')
-    }
-
-    setSocket(ws)
-
-    // Component unmount and WebSocket connection closed
-    return () => {
-      ws.close()
+    const token = localStorage.getItem('token')
+    if (token) {
+      useAuth(token).then((res) => {
+        if (res) {
+          setIsLogin(false)
+        } else {
+          window.location.href = '/login'
+        }
+      })
+    } else {
+      window.location.href = '/login'
     }
   }, [])
 
-  const sendMessage = (): void => {
-    if (message === '') {
-      messageApi.open({
-        type: 'error',
-        content: 'Please enter a message'
-      })
-      return
-    }
-
-    if (socket) {
-      const data: Message = {
-        SenderId: 1,
-        Content: message,
-        Date: ''
-      }
-      socket.send(JSON.stringify(data))
-      setMessage('')
-    }
-  }
-
-  function getItem(
-    label: React.ReactNode,
-    key: React.Key,
-    icon?: React.ReactNode,
-    children?: MenuItem[]
-  ): MenuItem {
-    return {
-      key,
-      icon,
-      children,
-      label
-    } as MenuItem
-  }
-
-  const exitHandler = (): void => {
-    localStorage.removeItem('webSocketIp')
-    localStorage.removeItem('username')
-    window.location.reload()
-  }
-
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider
-        style={{ background: 'white' }}
-        collapsible
-        collapsed={collapsed}
-        onCollapse={(value) => setCollapsed(value)}
-      >
-        <Flex vertical={true} justify="center" gap="middle">
-          <Button
-            danger
-            onClick={exitHandler}
-            type="primary"
-            style={{ width: '100%', borderRadius: '0' }}
-          >
-            Exit
-          </Button>
-          <Flex justify="center">
-            <Typography.Title level={5} style={{ color: 'gray' }}>
-              {collapsed ? '' : 'Online Users'}
-            </Typography.Title>
-          </Flex>
-        </Flex>
-        <Menu theme="light" defaultSelectedKeys={['1']} mode="inline" items={onlineUsers} />
-      </Sider>
-      <Layout>
-        <Content style={{ margin: '0 16px' }}>
-          {contextHolder}
-          <Flex
-            vertical={true}
-            style={{ height: '90vh', overflowY: 'auto', width: '100%' }}
-            justify="end"
-          >
-            <Flex vertical={true} gap="middle" style={{ overflowY: 'auto' }}>
-              {messagesList.map((message, index) => (
-                <Flex
-                  key={index}
-                  gap="middle"
-                  justify={message.userName === username ? 'end' : 'start'}
-                >
-                  <ChatItem
-                    key={index}
-                    usernName={username === message.userName ? 'You' : message.SenderId}
-                    message={message.Content}
-                    date={message.Date}
-                    color={message.userName === username ? '#1890ff' : '#6cb8fb'}
-                  />
-                </Flex>
-              ))}
-            </Flex>
-          </Flex>
-          <Flex justify="center" align="center" style={{ height: '10vh' }} gap="middle">
-            <Input
-              placeholder="Type a message"
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  sendMessage()
-                }
-              }}
-            />
-            <Button type="primary" onClick={sendMessage}>
-              Send
-            </Button>
-          </Flex>
-        </Content>
-      </Layout>
-    </Layout>
+    <Flex style={{ minHeight: '100vh', height: '100%' }}>
+      {isLogin && <Spin fullscreen />}
+
+      <MainLayout></MainLayout>
+    </Flex>
   )
 }
-
-export default WebSocketComponent

@@ -1,4 +1,5 @@
 using Backend.Entity.Abstract;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Entity.Concrete;
 
@@ -8,7 +9,4 @@ public class User: BaseEntity
    public string Password { get; set; }
    public string FullName { get; set; }
    public string Bio { get; set; }
-   
-   public ICollection<Message> SenderMessages { get; set; }
-   public ICollection<Message> ReceiverMessages { get; set; }
 }

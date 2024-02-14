@@ -1,6 +1,6 @@
 import { Alert, Button, Flex, Form, Input } from 'antd'
-import { LoginFormType, RegisterForm } from '../Types/FormsType'
-import { LoginRequest, RegisterRequest } from '../API/Auth'
+import { RegisterForm } from '../Types/FormsType'
+import { RegisterRequest } from '../API/Auth'
 import { useState } from 'react'
 
 export const Register: React.FC = () => {
@@ -31,20 +31,20 @@ export const Register: React.FC = () => {
       >
         <Form.Item
           name="UserName"
-          rules={[{ required: true, message: 'Please input your Username!' }]}
+          rules={[{ required: true, message: 'Please input your Username!', min: 3, max: 20 }]}
         >
           <Input placeholder="Username" />
         </Form.Item>
         <Form.Item
           name="Password"
-          rules={[{ required: true, message: 'Please input your Password!' }]}
+          rules={[{ required: true, message: 'Please input your Password!', min: 6, max: 20 }]}
         >
           <Input type="password" placeholder="Password" />
         </Form.Item>
 
         <Form.Item
           name="FullName"
-          rules={[{ required: true, message: 'Please input your Full Name!' }]}
+          rules={[{ required: true, message: 'Please input your Full Name!', min: 3, max: 20 }]}
         >
           <Input placeholder="Full Name" />
         </Form.Item>

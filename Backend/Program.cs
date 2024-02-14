@@ -1,6 +1,8 @@
 using System.Text;
 using Backend.Business.Abstract;
 using Backend.Business.Concrete;
+using Backend.Data.Abstract;
+using Backend.Data.Concrete;
 using Backend.Data.Concrete.EF;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +27,7 @@ builder.Services.AddScoped<IMessageServices, MessageServices>();
 builder.Services.AddScoped<IAuthServices, AuthServices>();
 builder.Services.AddScoped<IJwtServices, JwtServices>();
 builder.Services.AddScoped<ApplicationDbContext>();
+builder.Services.AddScoped<IConnectionDb, ConnectionDb>();
 
 // configure the database connection PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

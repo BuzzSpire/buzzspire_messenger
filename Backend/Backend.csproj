@@ -26,8 +26,6 @@
 
     <ItemGroup>
       <Folder Include="API\" />
-      <Folder Include="Data\Abstract\" />
-      <Folder Include="Data\Concrete\" />
     </ItemGroup>
 
     <ItemGroup>

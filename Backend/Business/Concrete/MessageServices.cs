@@ -1,35 +1,57 @@
 using System.Net.WebSockets;
 using System.Text;
+using System.Text.Json;
 using Backend.Business.Abstract;
+using Backend.Data.Abstract;
+using Backend.Data.Concrete.EF;
+using Backend.Entity.Concrete;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Business.Concrete;
 
 public class MessageServices : IMessageServices
 {
+    private readonly IJwtServices _jwtServices;
+    private readonly ApplicationDbContext _applicationDbContext;
+    private readonly IConnectionDb _connectionDb;
 
-    public async Task Broadcast(string message)
+    public MessageServices(IJwtServices jwtServices, ApplicationDbContext applicationDbContext,
+        IConnectionDb connectionDb)
     {
-        var buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
-        foreach (var ws in GetConnections().ToList())
-        {
-            if (ws.Value.State == WebSocketState.Open)
-            {
-                await ws.Value.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
-            }
-        }
+        _jwtServices = jwtServices;
+        _applicationDbContext = applicationDbContext;
+        _connectionDb = connectionDb;
     }
 
-    public void SaveConnection(long id, WebSocket ws)
+
+    public Task Broadcast(string message)
     {
+        // var buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
+        // foreach (var ws in GetConnections().ToList())
+        // {
+        //     if (ws.Value.State == WebSocketState.Open)
+        //     {
+        //         await ws.Value.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
+        //     }
+        // }
+        return Task.CompletedTask;
     }
 
-    public void RemoveConnection(long id)
+    public Boolean SaveConnection(long id, WebSocket ws)
     {
+        return _connectionDb.SaveConnection(id, ws);
     }
 
-    public Dictionary<long, WebSocket> GetConnections()
+    public Boolean RemoveConnection(long id)
     {
-        return new Dictionary<long, WebSocket>();
+        return _connectionDb.RemoveConnection(id);
+    }
+
+    public WebSocket GetConnections()
+    {
+        // TODO: Implement this method
+        return null;
     }
 
     public long[] GetOnlineUsers()
@@ -38,17 +60,118 @@ public class MessageServices : IMessageServices
     }
 
     public long GetIdByConnection(WebSocket ws)
-    {   
-        return 0;
+    {
+        return _connectionDb.GetConnectionId(ws);
     }
 
-    public async Task SendToUser(long senderId, string message, long receiverId)
+    public async Task SendToUser(long senderId, string receiveUserName)
     {
-        // var ws = _connectionsDbContext.Get(receiverId);
-        // if (ws.State == WebSocketState.Open)
-        // {
-        //     var buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
-        //     await ws.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
-        // }
+        var receiverId = _applicationDbContext.Users
+            .Where(u => u.UserName == receiveUserName)
+            .Select(u => u.Id)
+            .FirstOrDefault();
+
+        var ws = _connectionDb.GetConnection(receiverId);
+
+        var res = JsonSerializer.Serialize(new
+        {
+            senderId,
+            senderUserName = _applicationDbContext.Users
+                .Where(u => u.Id == senderId)
+                .Select(u => u.UserName)
+                .FirstOrDefault(),
+            message = true
+        });
+
+        if (ws.State == WebSocketState.Open)
+        {
+            await ws.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(res)), WebSocketMessageType.Text, true,
+                CancellationToken.None);
+        }
+    }
+
+    public async Task<IActionResult> SendMessage(string receiverUserName, string message, string token)
+    {
+        if (!_jwtServices.IsTokenValid(token))
+        {
+            return new UnauthorizedObjectResult(new { error = "Invalid token." });
+        }
+
+        var receiverUser = await _applicationDbContext.Users.FirstOrDefaultAsync(u => u.UserName == receiverUserName);
+        if (receiverUser == null)
+        {
+            return new NotFoundObjectResult(new { error = "User not found." });
+        }
+
+        var senderId = _jwtServices.GetUserIdFromToken(token);
+
+        _applicationDbContext.Messages.Add(new Message
+        {
+            SenderId = senderId,
+            ReceiverId = receiverUser.Id,
+            Content = message,
+            Date = DateTime.UtcNow,
+        });
+
+        try
+        {
+            await _applicationDbContext.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+            return new BadRequestObjectResult(new { error = e.Message });
+        }
+
+        return new OkResult();
+    }
+
+    public async Task<IActionResult> GetMessages(string receiverUserName, string token)
+    {
+        if (!_jwtServices.IsTokenValid(token))
+        {
+            return new UnauthorizedObjectResult(new { error = "Invalid token." });
+        }
+
+        var receiverUser = await _applicationDbContext.Users.FirstOrDefaultAsync(u => u.UserName == receiverUserName);
+        if (receiverUser == null)
+        {
+            return new NotFoundObjectResult(new { error = "User not found." });
+        }
+
+        var senderId = _jwtServices.GetUserIdFromToken(token);
+
+        var messages = await _applicationDbContext.Messages
+            .Where(m => (m.SenderId == senderId && m.ReceiverId == receiverUser.Id) ||
+                        (m.SenderId == receiverUser.Id && m.ReceiverId == senderId))
+            .OrderBy(m => m.Date)
+            .ToListAsync();
+
+        return new OkObjectResult(messages);
+    }
+
+    public async Task<IActionResult> GetAllLastMessagesGroupByUsers(string token)
+    {
+        if (!_jwtServices.IsTokenValid(token))
+        {
+            return new UnauthorizedObjectResult(new { error = "Invalid token." });
+        }
+
+        var userId = _jwtServices.GetUserIdFromToken(token);
+
+        var messages = await _applicationDbContext.Messages
+            .Where(m => m.SenderId == userId || m.ReceiverId == userId)
+            .GroupBy(m => m.SenderId == userId ? m.ReceiverId : m.SenderId)
+            .Select(g => new
+            {
+                UserId = g.Key,
+                UserName = _applicationDbContext.Users
+                    .Where(u => u.Id == g.Key)
+                    .Select(u => u.UserName)
+                    .FirstOrDefault(),
+                LastMessage = g.OrderByDescending(m => m.Date).FirstOrDefault()
+            })
+            .ToListAsync();
+
+        return new OkObjectResult(messages);
     }
 }

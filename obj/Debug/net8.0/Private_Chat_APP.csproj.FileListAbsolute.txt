@@ -1,0 +1,5 @@
+/Users/mert/github/Private_Chat_APP/obj/Debug/net8.0/Private_Chat_APP.GeneratedMSBuildEditorConfig.editorconfig
+/Users/mert/github/Private_Chat_APP/obj/Debug/net8.0/Private_Chat_APP.AssemblyInfoInputs.cache
+/Users/mert/github/Private_Chat_APP/obj/Debug/net8.0/Private_Chat_APP.AssemblyInfo.cs
+/Users/mert/github/Private_Chat_APP/obj/Debug/net8.0/Private_Chat_APP.csproj.CoreCompileInputs.cache
+/Users/mert/github/Private_Chat_APP/obj/Debug/net8.0/Private_Chat_APP.sourcelink.json

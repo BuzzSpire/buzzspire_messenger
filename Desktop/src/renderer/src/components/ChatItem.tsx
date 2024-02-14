@@ -1,26 +1,40 @@
-import '../assets/ChatItem.css'
+import { Avatar, Flex, Typography } from 'antd'
 import { FC } from 'react'
-import { Flex, Typography } from 'antd'
+import { Message } from '../Types/EntitysType'
 
 interface ChatItemProps {
-  usernName?: string
-  message: string
-  date: string
-  color: string
+  message: Message
+  username: string
+  defaultUserName: string
 }
 
-export const ChatItem: FC<ChatItemProps> = ({ color, usernName, message, date }) => {
+export const ChatItem: FC<ChatItemProps> = ({
+  username,
+  message,
+  defaultUserName
+}): JSX.Element => {
   return (
     <Flex
-      vertical={true}
-      style={{ background: color, padding: '5px', borderRadius: '8px', maxWidth: '60%' }}
+      style={{ padding: '10px' }}
+      gap="small"
+      align="end"
+      justify={message.sender === null ? 'end' : 'start'}
     >
-      <Typography.Text style={{ color: 'white', padding: '5px' }}>{message} </Typography.Text>
-      <Flex justify="space-between" style={{ padding: '5px' }}>
-        <Typography.Text style={{ color: 'white', fontSize: '12px' }}>{date}</Typography.Text>
-
-        <Typography.Text style={{ color: 'white', fontSize: '12px', marginLeft: '10px' }}>
-          {usernName}
+      <Flex vertical={true}>
+        <Avatar>{message.receiver === null ? username[0] : defaultUserName[0]}</Avatar>
+      </Flex>
+      <Flex
+        vertical={true}
+        gap="small"
+        style={{
+          padding: '10px',
+          maxWidth: '50%',
+          backgroundColor: message.receiver === null ? '#dfe3ee' : 'white'
+        }}
+      >
+        <Typography.Text>{message.content}</Typography.Text>
+        <Typography.Text style={{ textAlign: 'end' }} type="secondary">
+          {new Date(message.date).toLocaleTimeString().slice(0, 5)}
         </Typography.Text>
       </Flex>
     </Flex>
