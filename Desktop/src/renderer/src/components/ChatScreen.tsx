@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from 'react'
 import { Avatar, Flex, Typography } from 'antd'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { ChatItem } from './ChatItem'
-import { getMessages } from '../API/Messages'
+import { GetMessages } from '../API/Messages'
 import { Message } from '../Types/EntitysType'
 import { Notification } from '../Types/NotificationType'
 
@@ -35,7 +35,7 @@ export const ChatScreen: FC<ChatScreenProps> = ({ username, notification }): JSX
     const token = localStorage.getItem('token')
 
     if (token) {
-      getMessages(token, username).then((res) => {
+      GetMessages(token, username).then((res) => {
         if (res) {
           setMessages(res)
           setVisitMessages(res.reverse().slice(0, 10))

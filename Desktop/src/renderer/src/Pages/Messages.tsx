@@ -1,12 +1,14 @@
 import { MainLayout } from '../layout/MainLayout'
-import { Flex, Button, Tooltip, Typography, message, Input, Modal } from 'antd'
+import { Flex, Button, Tooltip, Typography, message, Input, Drawer } from 'antd'
 import { MessageCard } from '../components/MessageCard'
 import { GetAllLastMessagesResponse } from '../Types/MessageType'
 import { useEffect, useState } from 'react'
-import { GetAllLastMessages, getMessages, sendMessage } from '../API/Messages'
+import { GetAllLastMessages, GetMessages, SendMessage } from '../API/Messages'
 import { FileAddOutlined, SendOutlined } from '@ant-design/icons'
 import { ChatScreen } from '../components/ChatScreen'
 import { Notification } from '../Types/NotificationType'
+import { User } from '../Types/EntitysType'
+import { SearchUserByUserName } from '../API/User'
 
 export const Messages = (): JSX.Element => {
   const [lastMessagesResponse, setLastMessagesResponse] = useState<GetAllLastMessagesResponse[]>([])
@@ -16,6 +18,8 @@ export const Messages = (): JSX.Element => {
   const [webSocket, setWebSocket] = useState<WebSocket | null>(null)
   const [notification, setNotification] = useState<Notification[]>([])
   const [text, setText] = useState<string>('')
+  const [foundUser, setFoundUser] = useState<User>()
+  const [lastmessageFilter, setLastMessageFilter] = useState<GetAllLastMessagesResponse[]>([])
 
   const [messageApi, contextHolder] = message.useMessage()
   const { Search } = Input
@@ -26,6 +30,7 @@ export const Messages = (): JSX.Element => {
       GetAllLastMessages(token).then((res) => {
         if (res) {
           setLastMessagesResponse(res)
+          setLastMessageFilter(res)
         }
       })
     }
@@ -53,6 +58,7 @@ export const Messages = (): JSX.Element => {
         GetAllLastMessages(token).then((res) => {
           if (res) {
             setLastMessagesResponse(res)
+            setLastMessageFilter(res)
           }
         })
       }
@@ -70,7 +76,7 @@ export const Messages = (): JSX.Element => {
 
     if (!token) return
 
-    getMessages(token, username).then((res) => {
+    GetMessages(token, username).then((res) => {
       if (res) {
         setToogleMessage(true)
         setSelectedUser(username)
@@ -82,14 +88,23 @@ export const Messages = (): JSX.Element => {
   }
 
   const handlerSearch = (value: string): void => {
-    console.log(value)
+    if (value === '') {
+      setLastMessageFilter(lastMessagesResponse)
+      return
+    }
+
+    const filter = lastMessagesResponse.filter((message) => {
+      return message.userName.toLowerCase().includes(value.toLowerCase())
+    })
+
+    setLastMessageFilter(filter)
   }
 
   const handlerSendMessage = (): void => {
     if (text === '' || selectedUser === '') return
     const token = localStorage.getItem('token')
     if (!token) return
-    sendMessage(token, text, selectedUser).then((res) => {
+    SendMessage(token, text, selectedUser).then((res) => {
       if (!res) {
         messageApi.open({
           type: 'error',
@@ -101,6 +116,7 @@ export const Messages = (): JSX.Element => {
         GetAllLastMessages(token).then((res) => {
           if (res) {
             setLastMessagesResponse(res)
+            setLastMessageFilter(res)
           }
         })
       }
@@ -116,31 +132,49 @@ export const Messages = (): JSX.Element => {
     }
   }
 
-  const showModal = (): void => {
-    setIsModalOpen(true)
+  const handleSearchUser = (value: string): void => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      SearchUserByUserName(token, value).then((res) => {
+        if (res) {
+          console.log(res)
+          setFoundUser(res)
+        }
+      })
+    }
   }
 
-  const handleOk = (): void => {
-    setIsModalOpen(false)
+  const showModal = (): void => {
+    setIsModalOpen(true)
   }
 
   const handleCancel = (): void => {
     setIsModalOpen(false)
   }
 
+  const handleFoundUser = (): void => {
+    if (foundUser) {
+      handleToogleMessage(foundUser.userName)
+      setIsModalOpen(false)
+    }
+  }
+
   return (
     <MainLayout key="1">
       {contextHolder}
-      <Modal
-        title="Create a new message"
-        open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
-      >
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-      </Modal>
+      <Drawer title="new Message" open={isModalOpen} onClose={handleCancel}>
+        <Search placeholder="Search user" allowClear onSearch={(e) => handleSearchUser(e)} />
+        {foundUser && (
+          <div onClick={handleFoundUser}>
+            <MessageCard
+              message={''}
+              date={''}
+              userName={foundUser.userName}
+              notificationCount={0}
+            />
+          </div>
+        )}
+      </Drawer>
       <Flex>
         <Flex
           vertical={true}
@@ -158,7 +192,7 @@ export const Messages = (): JSX.Element => {
           </Flex>
           <Search placeholder="Search" onSearch={(e) => handlerSearch(e)} />
           <Flex vertical={true} align="center" style={{ marginTop: '10px' }}>
-            {lastMessagesResponse.map((message, index) => {
+            {lastmessageFilter.map((message, index) => {
               return (
                 <div
                   key={index}

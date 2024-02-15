@@ -28,6 +28,7 @@ builder.Services.AddScoped<IAuthServices, AuthServices>();
 builder.Services.AddScoped<IJwtServices, JwtServices>();
 builder.Services.AddScoped<ApplicationDbContext>();
 builder.Services.AddScoped<IConnectionDb, ConnectionDb>();
+builder.Services.AddScoped<IUserServices, UserServices>();
 
 // configure the database connection PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

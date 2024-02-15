@@ -14,7 +14,7 @@ export const GetAllLastMessages = async (token: string): Promise<GetAllLastMessa
   return respoense.json()
 }
 
-export const getMessages = async (token: string, username: string): Promise<Message[]> => {
+export const GetMessages = async (token: string, username: string): Promise<Message[]> => {
   const respoense = await fetch(`${API}/Message/${username}`, {
     method: 'GET',
     headers: {
@@ -25,7 +25,7 @@ export const getMessages = async (token: string, username: string): Promise<Mess
   return respoense.json()
 }
 
-export const sendMessage = async (
+export const SendMessage = async (
   token: string,
   message: string,
   receiverUsername: string
