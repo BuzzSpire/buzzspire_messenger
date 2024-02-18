@@ -10,3 +10,4 @@ Backend/appsettings.json
 Backend/Migrations
 Backend/bin/Debug/net8.0
 Desktop/src/renderer/src/.env
+data
