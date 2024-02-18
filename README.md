@@ -1,8 +1,8 @@
-# Private_Chat_APP
+# Notify Buzzspire
 
 
 
-Private_Chat_APP is a desktop application that enables real-time messaging by establishing communication through your own server.
+Notify Buzzspire is a desktop application that enables real-time messaging by establishing communication through your own server.
 
 ## Technologies
 
@@ -25,8 +25,8 @@ Contemporary chat applications typically manage all communication through their 
 
 2. **Clone the Repositories:**
    ```bash
-   git clone https://github.com/tw4/Private_Chat_APP.git
-   cd Private_Chat_APP
+   git clone https://github.com/tw4/notify.buzzspire.git
+   cd notify.buzzspire
    ```
 
 ### Usage
@@ -36,12 +36,15 @@ Contemporary chat applications typically manage all communication through their 
 3. Communicate securely between users through the application.
 
 ### screen
-https://github.com/tw4/Private_Chat_APP/assets/88425310/123fff58-ce90-4741-8c7f-d7d67e366df1
+
+
+https://github.com/tw4/notify.buzzspire/assets/88425310/45bd084f-b76a-4cdd-88fc-377905d3b054
+
 
 
 ### Contribution
 
-This project is the [Contributing Guidelines 🚀](https://github.com/tw4/Private_Chat_APP/wiki/Contribution-Guidelines)
+This project is the [Contributing Guidelines 🚀](https://github.com/tw4/notify.buzzspire/wiki/Contribution-Guidelines)
 
 
 ### License
