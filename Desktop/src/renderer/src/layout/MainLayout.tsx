@@ -1,11 +1,6 @@
 import { FC, ReactNode } from 'react'
-import { Badge, Flex, Layout, Menu } from 'antd'
-import {
-  MessageOutlined,
-  UsergroupAddOutlined,
-  SettingFilled,
-  LogoutOutlined
-} from '@ant-design/icons'
+import { Badge, Layout, Menu } from 'antd'
+import { MessageOutlined, SettingFilled, LogoutOutlined } from '@ant-design/icons'
 
 interface MainLayoutProps {
   children?: ReactNode
