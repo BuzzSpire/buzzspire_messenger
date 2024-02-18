@@ -1,5 +1,0 @@
-/Users/mert/github/Private_Chat_APP/Client/bin/Release/net8.0/win-x64/publish/Client.exe
-/Users/mert/github/Private_Chat_APP/Client/bin/Release/net8.0/win-x64/publish/Client.dll
-/Users/mert/github/Private_Chat_APP/Client/bin/Release/net8.0/win-x64/publish/Client.deps.json
-/Users/mert/github/Private_Chat_APP/Client/bin/Release/net8.0/win-x64/publish/Client.runtimeconfig.json
-/Users/mert/github/Private_Chat_APP/Client/bin/Release/net8.0/win-x64/publish/Client.pdb
