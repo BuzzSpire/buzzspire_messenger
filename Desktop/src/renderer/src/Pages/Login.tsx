@@ -11,6 +11,7 @@ export const Login: React.FC = () => {
     LoginRequest(values.UserName, values.Password).then((res) => {
       const regex = /^[\w-]+\.[\w-]+\.[\w-]+$/g.test(res.token)
       if (regex) {
+        localStorage.setItem('username', values.UserName)
         localStorage.setItem('token', res.token)
         window.location.href = '/home'
       } else {
@@ -48,10 +49,6 @@ export const Login: React.FC = () => {
           <Form.Item name="Remember" valuePropName="checked" noStyle>
             <Checkbox>Remember me</Checkbox>
           </Form.Item>
-
-          <a className="login-form-forgot" href="">
-            Forgot password
-          </a>
         </Form.Item>
 
         {isError && (

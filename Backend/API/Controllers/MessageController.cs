@@ -3,6 +3,8 @@ using System.Text;
 using System.Text.Json;
 using Backend.Business.Abstract;
 using Backend.Entity.Concrete;
+using Backend.Entity.DTO.Message;
+using Backend.Entity.DTO.WebSocket;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.API.Controllers;
@@ -11,15 +13,17 @@ namespace Backend.API.Controllers;
 [Route("api/[controller]")]
 public class MessageController : ControllerBase
 {
+    private readonly IJwtServices _jwtServices;
     private readonly IMessageServices _messageServices;
 
-    public MessageController(IMessageServices messageServices)
+    public MessageController(IMessageServices messageServices, IJwtServices jwtServices)
     {
         _messageServices = messageServices;
+        _jwtServices = jwtServices;
     }
 
     [HttpGet("ws")]
-    public async Task Get([FromHeader] string token)
+    public async Task Get()
     {
         if (HttpContext.WebSockets.IsWebSocketRequest)
         {
@@ -31,20 +35,27 @@ public class MessageController : ControllerBase
 
             while (!result.CloseStatus.HasValue)
             {
-                Message message =
-                    JsonSerializer.Deserialize<Message>(Encoding.UTF8.GetString(buffer, 0, result.Count)) ??
+                WebSocketRequest request =
+                    JsonSerializer.Deserialize<WebSocketRequest>(Encoding.UTF8.GetString(buffer, 0, result.Count)) ??
                     throw new InvalidOperationException();
 
-                _messageServices.SaveConnection(message.SenderId, ws);
 
-                string broadcastMessage = JsonSerializer.Serialize(new Message
+                if (!_jwtServices.IsTokenValid(request.token))
                 {
-                    SenderId = message.SenderId,
-                    Content = message.Content,
-                    Date = DateTime.Now.ToString("HH:mm"),
-                    ReceiverId = message.ReceiverId
-                });
-                await _messageServices.SendToUser(message.SenderId, broadcastMessage, message.ReceiverId);
+                    return;
+                }
+
+                long userId = _jwtServices.GetUserIdFromToken(request.token);
+
+
+                _messageServices.SaveConnection(userId, ws);
+
+
+                if (request.receiverUsername != "")
+                {
+                    await _messageServices.SendToUser(userId, request.receiverUsername);
+                }
+
 
                 result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
             }
@@ -58,10 +69,22 @@ public class MessageController : ControllerBase
             await ws.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
         }
     }
-    
+
     [HttpPost("send")]
-    public async Task<ActionResult> Send()
+    public async Task<IActionResult> Send([FromHeader] string token, [FromBody] SendMessageRequest request)
     {
-        return Ok();
+        return await _messageServices.SendMessage(request.ReceiverUsername, request.Content, token);
+    }
+
+    [HttpGet("{receiverusername}")]
+    public async Task<IActionResult> GetMessages([FromHeader] string token, [FromRoute] string receiverusername)
+    {
+        return await _messageServices.GetMessages(receiverusername, token);
+    }
+
+    [HttpGet("getAllLastMessages")]
+    public async Task<IActionResult> GetAllLastMessages([FromHeader] string token)
+    {
+        return await _messageServices.GetAllLastMessagesGroupByUsers(token);
     }
 }

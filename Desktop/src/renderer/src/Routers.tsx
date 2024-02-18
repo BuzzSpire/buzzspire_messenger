@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom'
-import { Login } from './Pages/Login'
-import { Register } from './Pages/Register'
+import { Login, Home, Register } from './Pages'
+import { Messages } from './Pages/Messages'
 
 export const router = createBrowserRouter([
   {
@@ -10,5 +10,13 @@ export const router = createBrowserRouter([
   {
     path: '/register',
     element: <Register />
+  },
+  {
+    path: '/home',
+    element: <Home />
+  },
+  {
+    path: '/messages',
+    element: <Messages />
   }
 ])

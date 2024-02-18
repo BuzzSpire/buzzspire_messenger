@@ -15,7 +15,7 @@ public class Message : BaseEntity
     [ForeignKey("ReceiverId")] 
     public User Receiver { get; set; }
     [Required] 
-    public string Date { get; set; }
+    public DateTime Date { get; set; }
     [Required] 
     public string Content { get; set; }
 }

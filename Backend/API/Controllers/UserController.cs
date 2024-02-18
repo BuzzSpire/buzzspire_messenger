@@ -1,3 +1,4 @@
+using Backend.Business.Abstract;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.API.Controllers;
@@ -5,22 +6,20 @@ namespace Backend.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class UserController: ControllerBase{
+    
+    private readonly IUserServices _userServices;
+    
 
-    [HttpGet("get")]
-    public async Task<ActionResult> Get()
+    public UserController(IUserServices userServices)
     {
-        return Ok("Get");
-    }
-
-    [HttpPost("update")]
-    public async Task<ActionResult> Update()
-    {
-        return Ok("Update");
+        _userServices = userServices;
     }
     
-    [HttpPost("delete")]
-    public async Task<ActionResult> Delete()
+    [HttpGet("search/{username}")]
+    public async Task<IActionResult> GetUserByIdAsync([FromRoute] string username, [FromHeader] string token)
     {
-        return Ok("Delete");
+        return await _userServices.GetUserByUserNameAsync(username, token);
     }
+    
+
 }

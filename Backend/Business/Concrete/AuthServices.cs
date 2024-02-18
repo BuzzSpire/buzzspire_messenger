@@ -33,40 +33,45 @@ public class AuthServices : IAuthServices
         }
     }
 
-    public async Task<IActionResult> Register(RegisterRequest registerRequest)
+    public async Task<IActionResult> Register(RegisterRequest request)
     {
-        var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u => u.UserName == registerRequest.UserName);
+        var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u => u.UserName == request.UserName);
         if (user != null)
         {
             return new BadRequestObjectResult(new { error = "User already exists" });
         }
 
-        if (string.IsNullOrEmpty(registerRequest.UserName) || string.IsNullOrEmpty(registerRequest.Password) ||
-            string.IsNullOrEmpty(registerRequest.FullName))
+        if (request.UserName.Contains($" "))
+        {
+            return new BadRequestObjectResult(new { error = "Username can not contain space" });
+        }
+
+        if (string.IsNullOrEmpty(request.UserName) || string.IsNullOrEmpty(request.Password) ||
+            string.IsNullOrEmpty(request.FullName))
         {
             return new BadRequestObjectResult(new { error = "Username, Password and Fullname can not be empty" });
         }
 
-        registerRequest.Password = _jwtServices.EncryptPassword(registerRequest.Password);
+        request.Password = _jwtServices.EncryptPassword(request.Password);
 
         _applicationDbContext.Users.Add(new User
         {
-            FullName = registerRequest.FullName,
-            UserName = registerRequest.UserName,
-            Password = registerRequest.Password,
+            FullName = request.FullName,
+            UserName = request.UserName,
+            Password = request.Password,
             Bio = "",
         });
 
         try
         {
-            _applicationDbContext.SaveChanges();
+            await _applicationDbContext.SaveChangesAsync();
         }
         catch (Exception e)
         {
             return new BadRequestObjectResult(e.Message);
         }
 
-        user = await _applicationDbContext.Users.FirstOrDefaultAsync(u => u.UserName == registerRequest.UserName);
+        user = await _applicationDbContext.Users.FirstOrDefaultAsync(u => u.UserName == request.UserName);
         if (user == null)
         {
             return new BadRequestObjectResult(new { error = "User not found" });
@@ -81,15 +86,15 @@ public class AuthServices : IAuthServices
         {
             return new UnauthorizedObjectResult((new { error = "Token is not valid" }));
         }
-        
-        var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u => u.Id == _jwtServices.GetUserIdFromToken(token));
-        
+
+        var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u =>
+            u.Id == _jwtServices.GetUserIdFromToken(token));
+
         if (user == null)
         {
             return new NotFoundObjectResult(new { error = "User not found" });
         }
-        
-        return new OkObjectResult(new { isvalidated = true});
-        
+
+        return new OkObjectResult(new { isvalidated = true });
     }
 }
