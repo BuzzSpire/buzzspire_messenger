@@ -15,13 +15,15 @@ public class MessageServices : IMessageServices
     private readonly IJwtServices _jwtServices;
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly IConnectionDb _connectionDb;
+    private readonly IEncryptServices _encryptServices;
 
     public MessageServices(IJwtServices jwtServices, ApplicationDbContext applicationDbContext,
-        IConnectionDb connectionDb)
+        IConnectionDb connectionDb, IEncryptServices encryptServices)
     {
         _jwtServices = jwtServices;
         _applicationDbContext = applicationDbContext;
         _connectionDb = connectionDb;
+        _encryptServices = encryptServices;
     }
 
 
@@ -104,12 +106,13 @@ public class MessageServices : IMessageServices
         }
 
         var senderId = _jwtServices.GetUserIdFromToken(token);
+        
 
         _applicationDbContext.Messages.Add(new Message
         {
             SenderId = senderId,
             ReceiverId = receiverUser.Id,
-            Content = message,
+            Content = _encryptServices.EncryptMessage(message),
             Date = DateTime.UtcNow,
         });
 
@@ -145,6 +148,8 @@ public class MessageServices : IMessageServices
                         (m.SenderId == receiverUser.Id && m.ReceiverId == senderId))
             .OrderBy(m => m.Date)
             .ToListAsync();
+        
+        messages.ForEach(m => m.Content = _encryptServices.DecryptMessage(m.Content));
 
         return new OkObjectResult(messages);
     }
@@ -171,6 +176,8 @@ public class MessageServices : IMessageServices
                 LastMessage = g.OrderByDescending(m => m.Date).FirstOrDefault()
             })
             .ToListAsync();
+        
+        messages.ForEach(m => m.LastMessage.Content = _encryptServices.DecryptMessage(m.LastMessage.Content));
 
         return new OkObjectResult(messages);
     }
