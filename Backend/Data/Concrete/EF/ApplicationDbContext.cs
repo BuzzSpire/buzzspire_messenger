@@ -12,11 +12,12 @@ public class ApplicationDbContext : DbContext
     
     private IConfiguration _configuration;
     private IJwtServices _jwtServices;
+    private IEncryptServices _encryptServices;
 
-
-    public ApplicationDbContext(DbContextOptions options, IJwtServices jwtServices) : base(options)
+    public ApplicationDbContext(DbContextOptions options, IJwtServices jwtServices, IEncryptServices encryptServices) : base(options)
     {
         _jwtServices = jwtServices;
+        _encryptServices = encryptServices;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -35,7 +36,7 @@ public class ApplicationDbContext : DbContext
             {
                 Id = 1,
                 UserName = "admin",
-                Password = _jwtServices.EncryptPassword("admin"),
+                Password = _encryptServices.EncryptPassword("admin"),
                 Bio = "admin",
                 FullName = "admin admin"
             },
@@ -43,7 +44,7 @@ public class ApplicationDbContext : DbContext
             {
                 Id = 2,
                 UserName = "user",
-                Password = _jwtServices.EncryptPassword("user"),
+                Password = _encryptServices.EncryptPassword("user"),
                 Bio = "user",
                 FullName = "user user"
             }

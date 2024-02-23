@@ -11,18 +11,21 @@ public class AuthServices : IAuthServices
 {
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly IJwtServices _jwtServices;
+    private readonly IEncryptServices _encryptServices;
 
-    public AuthServices(IJwtServices jwtServices, ApplicationDbContext applicationDbContext)
+    public AuthServices(IJwtServices jwtServices, ApplicationDbContext applicationDbContext,
+        IEncryptServices encryptServices)
     {
         _jwtServices = jwtServices;
         _applicationDbContext = applicationDbContext;
+        _encryptServices = encryptServices;
     }
 
 
     public async Task<IActionResult> Login(LoginRequest request)
     {
         var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u =>
-            u.UserName == request.UserName && u.Password == _jwtServices.EncryptPassword(request.Password));
+            u.UserName == request.UserName && u.Password == _encryptServices.EncryptPassword(request.Password));
         if (user == null)
         {
             return new BadRequestObjectResult(new { error = "UserName or Password wrong" });
@@ -52,7 +55,7 @@ public class AuthServices : IAuthServices
             return new BadRequestObjectResult(new { error = "Username, Password and Fullname can not be empty" });
         }
 
-        request.Password = _jwtServices.EncryptPassword(request.Password);
+        request.Password = _encryptServices.EncryptPassword(request.Password);
 
         _applicationDbContext.Users.Add(new User
         {
