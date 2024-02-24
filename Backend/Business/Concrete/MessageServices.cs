@@ -128,7 +128,7 @@ public class MessageServices : IMessageServices
         return new OkResult();
     }
 
-    public async Task<IActionResult> GetMessages(string receiverUserName, string token)
+    public async Task<IActionResult> GetMessages(string receiverUserName, string token, long page)
     {
         if (!_jwtServices.IsTokenValid(token))
         {
@@ -142,14 +142,18 @@ public class MessageServices : IMessageServices
         }
 
         var senderId = _jwtServices.GetUserIdFromToken(token);
-
+        
         var messages = await _applicationDbContext.Messages
             .Where(m => (m.SenderId == senderId && m.ReceiverId == receiverUser.Id) ||
                         (m.SenderId == receiverUser.Id && m.ReceiverId == senderId))
-            .OrderBy(m => m.Date)
+            .OrderByDescending(m => m.Date)
+            .Skip((int) (page - 1) * 10)
+            .Take(10)
             .ToListAsync();
         
         messages.ForEach(m => m.Content = _encryptServices.DecryptMessage(m.Content));
+        
+        
 
         return new OkObjectResult(messages);
     }

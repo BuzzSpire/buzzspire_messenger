@@ -76,10 +76,10 @@ public class MessageController : ControllerBase
         return await _messageServices.SendMessage(request.ReceiverUsername, request.Content, token);
     }
 
-    [HttpGet("{receiverusername}")]
-    public async Task<IActionResult> GetMessages([FromHeader] string token, [FromRoute] string receiverusername)
+    [HttpGet("{receiverusername}/{page}")]
+    public async Task<IActionResult> GetMessages([FromHeader] string token, [FromRoute] string receiverusername, [FromRoute] long page)
     {
-        return await _messageServices.GetMessages(receiverusername, token);
+        return await _messageServices.GetMessages(receiverusername, token, page);
     }
 
     [HttpGet("getAllLastMessages")]
