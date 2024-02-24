@@ -1,7 +1,7 @@
 # Buzzspire Messenger
 
 
-Notify Buzzspire is a desktop application that enables real-time messaging by establishing communication through your own server.
+Buzzspire Messenger is a desktop application that enables real-time messaging by establishing communication through your own server.
 
 ## Technologies
 
