@@ -1,5 +1,4 @@
-# Notify Buzzspire
-
+# Buzzspire Messenger
 
 
 Notify Buzzspire is a desktop application that enables real-time messaging by establishing communication through your own server.
@@ -38,7 +37,10 @@ Contemporary chat applications typically manage all communication through their 
 ### screen
 
 
-https://github.com/tw4/notify.buzzspire/assets/88425310/45bd084f-b76a-4cdd-88fc-377905d3b054
+
+
+https://github.com/BuzzSpire/buzzspire_messenger/assets/88425310/53ea3289-f013-4eee-9060-4996c593b249
+
 
 
 
