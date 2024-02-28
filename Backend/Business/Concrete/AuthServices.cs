@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Runtime.InteropServices.JavaScript;
 using Backend.Business.Abstract;
 using Backend.Data.Concrete.EF;
 using Backend.Entity.Concrete;
@@ -63,6 +65,7 @@ public class AuthServices : IAuthServices
             UserName = request.UserName,
             Password = request.Password,
             Bio = "",
+            ProfilePicture = null
         });
 
         try

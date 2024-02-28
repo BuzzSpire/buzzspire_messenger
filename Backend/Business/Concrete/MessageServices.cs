@@ -172,6 +172,10 @@ public class MessageServices : IMessageServices
             .GroupBy(m => m.SenderId == userId ? m.ReceiverId : m.SenderId)
             .Select(g => new
             {
+                ProfilePicture = _applicationDbContext.Users
+                    .Where(u => u.Id == g.Key)
+                    .Select(u => u.ProfilePicture)
+                    .FirstOrDefault(),
                 UserId = g.Key,
                 UserName = _applicationDbContext.Users
                     .Where(u => u.Id == g.Key)

@@ -38,7 +38,8 @@ public class ApplicationDbContext : DbContext
                 UserName = "admin",
                 Password = _encryptServices.EncryptPassword("admin"),
                 Bio = "admin",
-                FullName = "admin admin"
+                FullName = "admin admin",
+                ProfilePicture = new Byte[0]
             },
             new User
             {
@@ -46,7 +47,8 @@ public class ApplicationDbContext : DbContext
                 UserName = "user",
                 Password = _encryptServices.EncryptPassword("user"),
                 Bio = "user",
-                FullName = "user user"
+                FullName = "user user",
+                ProfilePicture = new Byte[0]
             }
         );
     }
