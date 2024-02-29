@@ -65,7 +65,7 @@ public class AuthServices : IAuthServices
             UserName = request.UserName,
             Password = request.Password,
             Bio = "",
-            ProfilePicture = new Byte[0]
+            ProfilePicture = null
         });
 
         try
