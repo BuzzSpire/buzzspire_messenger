@@ -1,6 +1,5 @@
 using System.Net.WebSockets;
 using Backend.Data.Abstract;
-using Backend.Entity.Concrete;
 
 namespace Backend.Data.Concrete;
 

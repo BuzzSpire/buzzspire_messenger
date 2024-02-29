@@ -2,7 +2,6 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using Backend.Business.Abstract;
-using Backend.Entity.Concrete;
 using Backend.Entity.DTO.Message;
 using Backend.Entity.DTO.WebSocket;
 using Microsoft.AspNetCore.Mvc;
@@ -56,7 +55,7 @@ public class MessageController : ControllerBase
                     await _messageServices.SendToUser(userId, request.receiverUsername);
                 }
 
-
+                buffer = new byte[1024 * 4];
                 result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
             }
 
@@ -77,7 +76,8 @@ public class MessageController : ControllerBase
     }
 
     [HttpGet("{receiverusername}/{page}")]
-    public async Task<IActionResult> GetMessages([FromHeader] string token, [FromRoute] string receiverusername, [FromRoute] long page)
+    public async Task<IActionResult> GetMessages([FromHeader] string token, [FromRoute] string receiverusername,
+        [FromRoute] long page)
     {
         return await _messageServices.GetMessages(receiverusername, token, page);
     }
