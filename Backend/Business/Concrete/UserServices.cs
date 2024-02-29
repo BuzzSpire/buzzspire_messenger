@@ -135,7 +135,7 @@ public class UserServices : IUserServices
             return new BadRequestObjectResult(new { error = "Invalid password" });
         }
 
-        user.Password = request.NewPassword;
+        user.Password = _encryptServices.EncryptPassword(request.NewPassword);
         _applicationDbContext.Users.Update(user);
 
         try
