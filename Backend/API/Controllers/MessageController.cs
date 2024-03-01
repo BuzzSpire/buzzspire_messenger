@@ -21,53 +21,60 @@ public class MessageController : ControllerBase
         _jwtServices = jwtServices;
     }
 
-    [HttpGet("ws")]
-    public async Task Get()
+   [HttpGet("ws")]
+public async Task Get()
+{
+    if (HttpContext.WebSockets.IsWebSocketRequest)
     {
-        if (HttpContext.WebSockets.IsWebSocketRequest)
+        WebSocket ws = await HttpContext.WebSockets.AcceptWebSocketAsync();
+
+        var buffer = new byte[1024 * 4];
+
+        try
         {
-            WebSocket ws = await HttpContext.WebSockets.AcceptWebSocketAsync();
-
-            var buffer = new byte[1024 * 4];
-            WebSocketReceiveResult result =
-                await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-
-            while (!result.CloseStatus.HasValue)
+            while (ws.State == WebSocketState.Open)
             {
-                WebSocketRequest request =
-                    JsonSerializer.Deserialize<WebSocketRequest>(Encoding.UTF8.GetString(buffer, 0, result.Count)) ??
-                    throw new InvalidOperationException();
+                WebSocketReceiveResult result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
-
-                if (!_jwtServices.IsTokenValid(request.token))
+                if (result.MessageType == WebSocketMessageType.Text)
                 {
-                    return;
+                    string message = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                    WebSocketRequest request = JsonSerializer.Deserialize<WebSocketRequest>(message);
+
+                    if (request == null || string.IsNullOrEmpty(request.token))
+                    {
+                        throw new InvalidOperationException("Invalid WebSocketRequest");
+                    }
+
+                    if (!_jwtServices.IsTokenValid(request.token))
+                    {
+                        return;
+                    }
+
+                    long userId = _jwtServices.GetUserIdFromToken(request.token);
+
+                    _messageServices.SaveConnection(userId, ws);
+
+                    if (!string.IsNullOrEmpty(request.receiverUsername))
+                    {
+                        await _messageServices.SendToUser(userId, request.receiverUsername);
+                    }
                 }
-
-                long userId = _jwtServices.GetUserIdFromToken(request.token);
-
-
-                _messageServices.SaveConnection(userId, ws);
-
-
-                if (request.receiverUsername != "")
+                else if (result.MessageType == WebSocketMessageType.Close)
                 {
-                    await _messageServices.SendToUser(userId, request.receiverUsername);
+                    long closedUser = _messageServices.GetIdByConnection(ws);
+                    _messageServices.RemoveConnection(closedUser);
+                    await ws.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
                 }
-
-                buffer = new byte[1024 * 4];
-                result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
             }
-
-            if (result.CloseStatus.HasValue)
-            {
-                long closedUser = _messageServices.GetIdByConnection(ws);
-                _messageServices.RemoveConnection(closedUser);
-            }
-
-            await ws.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            // Handle exceptions as needed
+            Console.WriteLine($"WebSocket error: {ex.Message}");
         }
     }
+}
 
     [HttpPost("send")]
     public async Task<IActionResult> Send([FromHeader] string token, [FromBody] SendMessageRequest request)

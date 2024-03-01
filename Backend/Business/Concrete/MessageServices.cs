@@ -77,6 +77,7 @@ public class MessageServices : IMessageServices
 
         var res = JsonSerializer.Serialize(new
         {
+            receiverId,
             senderId,
             senderUserName = _applicationDbContext.Users
                 .Where(u => u.Id == senderId)
