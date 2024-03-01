@@ -73,8 +73,10 @@ public class MessageServices : IMessageServices
             .Select(u => u.Id)
             .FirstOrDefault();
 
-        var ws = _connectionDb.GetConnection(receiverId);
-
+        var receiverWs = _connectionDb.GetConnection(receiverId);
+        var senderWs = _connectionDb.GetConnection(senderId);
+        
+        
         var res = JsonSerializer.Serialize(new
         {
             receiverId,
@@ -86,11 +88,14 @@ public class MessageServices : IMessageServices
             message = true
         });
 
-        if (ws.State == WebSocketState.Open)
+        if (receiverWs.State == WebSocketState.Open || senderWs.State == WebSocketState.Open)
         {
-            await ws.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(res)), WebSocketMessageType.Text, true,
+            await receiverWs.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(res)), WebSocketMessageType.Text, true,
+                CancellationToken.None);
+            await senderWs.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(res)), WebSocketMessageType.Text, true,
                 CancellationToken.None);
         }
+        
     }
 
     public async Task<IActionResult> SendMessage(string receiverUserName, string message, string token)
