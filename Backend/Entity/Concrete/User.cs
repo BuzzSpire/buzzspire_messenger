@@ -1,3 +1,4 @@
+using System.Collections;
 using Backend.Entity.Abstract;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,4 +11,8 @@ public class User: BaseEntity
    public string FullName { get; set; }
    public string Bio { get; set; }
    public Byte[] ProfilePicture { get; set; }
+   
+   public virtual ICollection<Message> SendMessages { get; set; }
+   public virtual ICollection<Message> ReceivedMessages { get; set; }
+   
 }

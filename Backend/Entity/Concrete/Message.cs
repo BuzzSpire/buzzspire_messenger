@@ -7,15 +7,17 @@ namespace Backend.Entity.Concrete;
 public class Message : BaseEntity
 {
     [Required] 
-    public long SenderId { get; set; }
-    [ForeignKey("SenderId")] 
-    public User Sender { get; set; }
-    [Required] 
-    public long ReceiverId { get; set; }
-    [ForeignKey("ReceiverId")] 
-    public User Receiver { get; set; }
-    [Required] 
     public DateTime Date { get; set; }
     [Required] 
     public string Content { get; set; }
+    
+    [ForeignKey("Sender")]
+    public long SenderId { get; set; }
+    
+    [ForeignKey("Receiver")]
+    public long ReceiverId { get; set; }
+    
+    public virtual User Sender { get; set; }
+    public virtual User Receiver { get; set; }
+    
 }

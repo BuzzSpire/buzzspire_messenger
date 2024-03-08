@@ -65,7 +65,9 @@ public class AuthServices : IAuthServices
             UserName = request.UserName,
             Password = request.Password,
             Bio = "",
-            ProfilePicture = new Byte[0]
+            ProfilePicture = new Byte[0],
+            ReceivedMessages = new List<Message>(),
+            SendMessages = new List<Message>()
         });
 
         try
