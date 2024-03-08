@@ -33,5 +33,9 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<User>().HasMany(u => u.SendMessages).WithOne(m => m.Sender).HasForeignKey(m => m.SenderId);
+
+        modelBuilder.Entity<User>().HasMany(u => u.ReceivedMessages).WithOne(m => m.Receiver)
+            .HasForeignKey(m => m.ReceiverId);
     }
 }

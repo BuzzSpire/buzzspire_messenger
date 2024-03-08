@@ -75,8 +75,8 @@ public class MessageServices : IMessageServices
 
         var receiverWs = _connectionDb.GetConnection(receiverId);
         var senderWs = _connectionDb.GetConnection(senderId);
-        
-        
+
+
         var res = JsonSerializer.Serialize(new
         {
             receiverId,
@@ -90,12 +90,13 @@ public class MessageServices : IMessageServices
 
         if (receiverWs.State == WebSocketState.Open || senderWs.State == WebSocketState.Open)
         {
-            await receiverWs.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(res)), WebSocketMessageType.Text, true,
+            await receiverWs.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(res)), WebSocketMessageType.Text,
+                true,
                 CancellationToken.None);
-            await senderWs.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(res)), WebSocketMessageType.Text, true,
+            await senderWs.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(res)), WebSocketMessageType.Text,
+                true,
                 CancellationToken.None);
         }
-        
     }
 
     public async Task<IActionResult> SendMessage(string receiverUserName, string message, string token)
@@ -112,7 +113,7 @@ public class MessageServices : IMessageServices
         }
 
         var senderId = _jwtServices.GetUserIdFromToken(token);
-        
+
 
         _applicationDbContext.Messages.Add(new Message
         {
@@ -141,27 +142,66 @@ public class MessageServices : IMessageServices
             return new UnauthorizedObjectResult(new { error = "Invalid token." });
         }
 
-        var receiverUser = await _applicationDbContext.Users.FirstOrDefaultAsync(u => u.UserName == receiverUserName);
-        if (receiverUser == null)
+        var senderUser = await _applicationDbContext.Users
+            .Include(user => user.ReceivedMessages)
+            .FirstOrDefaultAsync(u => u.UserName == receiverUserName);
+
+        var receiverUser = await _applicationDbContext.Users
+            .Include(u => u.ReceivedMessages)
+            .FirstOrDefaultAsync(u => u.Id == _jwtServices.GetUserIdFromToken(token));
+
+        if (receiverUser == null || senderUser == null)
         {
             return new NotFoundObjectResult(new { error = "User not found." });
         }
+        
+        var senderMessages = senderUser.ReceivedMessages
+            .Where(m => m.SenderId == receiverUser.Id)
+            .Select(m => new
+            {
+                m.SenderId,
+                m.ReceiverId,
+                m.Content,
+                m.Date,
+                UserName = receiverUser.UserName,
+                FullName = receiverUser.FullName,
+                ProfilePicture = receiverUser.ProfilePicture
+            })
+            .Reverse()
+            .Skip((int)(page - 1) * 10)
+            .Take(10);
+            
 
-        var senderId = _jwtServices.GetUserIdFromToken(token);
-        
-        var messages = await _applicationDbContext.Messages
-            .Where(m => (m.SenderId == senderId && m.ReceiverId == receiverUser.Id) ||
-                        (m.SenderId == receiverUser.Id && m.ReceiverId == senderId))
-            .OrderByDescending(m => m.Date)
-            .Skip((int) (page - 1) * 10)
-            .Take(10)
-            .ToListAsync();
-        
-        messages.ForEach(m => m.Content = _encryptServices.DecryptMessage(m.Content));
-        
-        
+        var receivedMessages = receiverUser.ReceivedMessages
+            .Where(m => m.SenderId == senderUser.Id)
+            .Select(m => new
+            {
+                m.SenderId,
+                m.ReceiverId,
+                m.Content,
+                m.Date,
+                UserName = senderUser.UserName,
+                FullName = senderUser.FullName,
+                ProfilePicture = senderUser.ProfilePicture
+            })
+            .Reverse()
+            .Skip((int)(page - 1) * 10)
+            .Take(10);
 
-        return new OkObjectResult(messages);
+        var messages = receivedMessages.Concat(senderMessages).OrderBy(m => m.Date).Reverse().ToList();
+
+        var result = messages.Select(m => new
+        {
+            m.SenderId,
+            m.ReceiverId,
+            Content = _encryptServices.DecryptMessage(m.Content),
+            m.Date,
+            m.UserName,
+            m.FullName,
+            m.ProfilePicture
+        });
+
+        return new OkObjectResult(result);
     }
 
     public async Task<IActionResult> GetAllLastMessagesGroupByUsers(string token)
@@ -190,7 +230,7 @@ public class MessageServices : IMessageServices
                 LastMessage = g.OrderByDescending(m => m.Date).FirstOrDefault()
             })
             .ToListAsync();
-        
+
         messages.ForEach(m => m.LastMessage.Content = _encryptServices.DecryptMessage(m.LastMessage.Content));
 
         return new OkObjectResult(messages);
