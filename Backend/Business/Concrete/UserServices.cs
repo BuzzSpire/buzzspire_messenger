@@ -13,7 +13,8 @@ public class UserServices : IUserServices
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly IEncryptServices _encryptServices;
 
-    public UserServices(IJwtServices jwtServices, ApplicationDbContext applicationDbContext, IEncryptServices encryptServices)
+    public UserServices(IJwtServices jwtServices, ApplicationDbContext applicationDbContext,
+        IEncryptServices encryptServices)
     {
         _jwtServices = jwtServices;
         _applicationDbContext = applicationDbContext;
@@ -22,10 +23,7 @@ public class UserServices : IUserServices
 
     public async Task<IActionResult> GetUserByUserNameAsync(string userName, string token)
     {
-        if (!_jwtServices.IsTokenValid(token))
-        {
-            return new UnauthorizedObjectResult(new { error = "Unauthorized" });
-        }
+        _jwtServices.ValidateToken(token);
 
         User? user = await _applicationDbContext.Users.Where(u => u.UserName == userName).Select(u => new User
         {
@@ -46,10 +44,7 @@ public class UserServices : IUserServices
 
     public async Task<IActionResult> UploadProfilePictureAsync(IFormFile file, string token)
     {
-        if (!_jwtServices.IsTokenValid(token))
-        {
-            return new UnauthorizedObjectResult(new { error = "Unauthorized" });
-        }
+        _jwtServices.ValidateToken(token);
 
         var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u =>
             u.Id == _jwtServices.GetUserIdFromToken(token));
@@ -85,10 +80,7 @@ public class UserServices : IUserServices
 
     public async Task<IActionResult> UpdateUserBasicInfoAsync(UpdateUserBasicInfoRequest request, string token)
     {
-        if (!_jwtServices.IsTokenValid(token))
-        {
-            return new UnauthorizedObjectResult(new { error = "Unauthorized" });
-        }
+        _jwtServices.ValidateToken(token);
 
         var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u =>
             u.Id == _jwtServices.GetUserIdFromToken(token));
@@ -116,10 +108,7 @@ public class UserServices : IUserServices
 
     public async Task<IActionResult> UpdateUserPasswordAsync(UpdateUserPasswordRequest request, string token)
     {
-        if (!_jwtServices.IsTokenValid(token))
-        {
-            return new UnauthorizedObjectResult(new { error = "Unauthorized" });
-        }
+        _jwtServices.ValidateToken(token); 
 
         var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u =>
             u.Id == _jwtServices.GetUserIdFromToken(token));

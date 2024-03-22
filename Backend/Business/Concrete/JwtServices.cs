@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Backend.Business.Abstract;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Backend.Business.Concrete;
@@ -80,5 +81,12 @@ public class JwtServices: IJwtServices
         }
     }
 
-
+    public IActionResult ValidateToken(string token)
+    {
+        if (IsTokenValid(token))
+        {
+            return new OkResult();
+        }
+        return new UnauthorizedResult();
+    }
 }
