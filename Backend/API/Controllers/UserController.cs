@@ -43,4 +43,11 @@ public class UserController: ControllerBase{
     {
         return await _userServices.UpdateUserPasswordAsync(request, token);
     }
+   
+    // is user online
+    [HttpGet("isOnline/{username}")]
+    public async Task<IActionResult> IsUserOnlineAsync([FromRoute] string username, [FromHeader] string token)
+    {
+        return await _userServices.IsUserOnlineAsync(username, token);
+    }
 }

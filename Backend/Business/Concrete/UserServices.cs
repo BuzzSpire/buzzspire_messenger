@@ -1,4 +1,5 @@
 using Backend.Business.Abstract;
+using Backend.Data.Abstract;
 using Backend.Data.Concrete.EF;
 using Backend.Entity.Concrete;
 using Backend.Entity.DTO.User;
@@ -12,13 +13,15 @@ public class UserServices : IUserServices
     private readonly IJwtServices _jwtServices;
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly IEncryptServices _encryptServices;
+    private readonly IConnectionDb _connectionDb;
 
     public UserServices(IJwtServices jwtServices, ApplicationDbContext applicationDbContext,
-        IEncryptServices encryptServices)
+        IEncryptServices encryptServices, IConnectionDb connectionDb)
     {
         _jwtServices = jwtServices;
         _applicationDbContext = applicationDbContext;
         _encryptServices = encryptServices;
+        _connectionDb = connectionDb;
     }
 
     public async Task<IActionResult> GetUserByUserNameAsync(string userName, string token)
@@ -108,7 +111,7 @@ public class UserServices : IUserServices
 
     public async Task<IActionResult> UpdateUserPasswordAsync(UpdateUserPasswordRequest request, string token)
     {
-        _jwtServices.ValidateToken(token); 
+        _jwtServices.ValidateToken(token);
 
         var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u =>
             u.Id == _jwtServices.GetUserIdFromToken(token));
@@ -136,5 +139,19 @@ public class UserServices : IUserServices
         {
             return new BadRequestObjectResult(new { error = e.Message });
         }
+    }
+
+    public async Task<IActionResult> IsUserOnlineAsync(string userName, string token)
+    {
+        _jwtServices.ValidateToken(token);
+
+        var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+
+        if (user == null)
+        {
+            return new NotFoundObjectResult(new { error = "User not found" });
+        }
+
+        return new OkObjectResult(new { isOnline = _connectionDb.IsUserOnline(user.Id) });
     }
 }

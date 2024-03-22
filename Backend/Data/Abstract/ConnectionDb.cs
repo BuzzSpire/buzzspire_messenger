@@ -9,4 +9,5 @@ public interface IConnectionDb
     public Boolean SaveConnection(long userId, WebSocket ws);
     public Boolean RemoveConnection(long userId);
     public long GetConnectionId(WebSocket ws);
+    public Boolean IsUserOnline(long id);
 }

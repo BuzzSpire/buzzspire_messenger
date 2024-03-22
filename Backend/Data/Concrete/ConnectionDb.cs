@@ -40,4 +40,9 @@ public class ConnectionDb : IConnectionDb
     {
         return _connections.FirstOrDefault(x => x.Value == ws).Key;
     }
+
+    public bool IsUserOnline(long id)
+    {
+        return _connections.ContainsKey(id);
+    }
 }
