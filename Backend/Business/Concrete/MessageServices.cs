@@ -101,10 +101,7 @@ public class MessageServices : IMessageServices
 
     public async Task<IActionResult> SendMessage(string receiverUserName, string message, string token)
     {
-        if (!_jwtServices.IsTokenValid(token))
-        {
-            return new UnauthorizedObjectResult(new { error = "Invalid token." });
-        }
+        _jwtServices.ValidateToken(token);
 
         var receiverUser = await _applicationDbContext.Users.FirstOrDefaultAsync(u => u.UserName == receiverUserName);
         if (receiverUser == null)
@@ -137,10 +134,7 @@ public class MessageServices : IMessageServices
 
     public async Task<IActionResult> GetMessages(string receiverUserName, string token, long page)
     {
-        if (!_jwtServices.IsTokenValid(token))
-        {
-            return new UnauthorizedObjectResult(new { error = "Invalid token." });
-        }
+        _jwtServices.ValidateToken(token);
 
         var senderUser = await _applicationDbContext.Users
             .Include(user => user.ReceivedMessages)
@@ -154,7 +148,7 @@ public class MessageServices : IMessageServices
         {
             return new NotFoundObjectResult(new { error = "User not found." });
         }
-        
+
         var senderMessages = senderUser.ReceivedMessages
             .Where(m => m.SenderId == receiverUser.Id)
             .Select(m => new
@@ -170,7 +164,7 @@ public class MessageServices : IMessageServices
             .Reverse()
             .Skip((int)(page - 1) * 10)
             .Take(10);
-            
+
 
         var receivedMessages = receiverUser.ReceivedMessages
             .Where(m => m.SenderId == senderUser.Id)
@@ -206,10 +200,7 @@ public class MessageServices : IMessageServices
 
     public async Task<IActionResult> GetAllLastMessagesGroupByUsers(string token)
     {
-        if (!_jwtServices.IsTokenValid(token))
-        {
-            return new UnauthorizedObjectResult(new { error = "Invalid token." });
-        }
+        _jwtServices.ValidateToken(token);
 
         var userId = _jwtServices.GetUserIdFromToken(token);
 

@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+
 namespace Backend.Business.Abstract;
 
 public interface IJwtServices
@@ -6,4 +8,5 @@ public interface IJwtServices
     public long GetUserIdFromToken(string token);
     public string GetEmailFromToken(string token);
     public bool IsTokenValid(string token);
+    public IActionResult ValidateToken(string token);
 }

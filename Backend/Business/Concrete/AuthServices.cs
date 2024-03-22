@@ -90,10 +90,7 @@ public class AuthServices : IAuthServices
 
     public async Task<IActionResult> Auth(string token)
     {
-        if (!_jwtServices.IsTokenValid(token))
-        {
-            return new UnauthorizedObjectResult((new { error = "Token is not valid" }));
-        }
+        _jwtServices.ValidateToken(token);
 
         var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u =>
             u.Id == _jwtServices.GetUserIdFromToken(token));
