@@ -141,17 +141,10 @@ public class UserServices : IUserServices
         }
     }
 
-    public async Task<IActionResult> IsUserOnlineAsync(string userName, string token)
+    public IActionResult IsUserOnlineAsync(long userId, string token)
     {
         _jwtServices.ValidateToken(token);
 
-        var user = await _applicationDbContext.Users.FirstOrDefaultAsync(u => u.UserName == userName);
-
-        if (user == null)
-        {
-            return new NotFoundObjectResult(new { error = "User not found" });
-        }
-
-        return new OkObjectResult(new { isOnline = _connectionDb.IsUserOnline(user.Id) });
+        return new OkObjectResult(new { isOnline = _connectionDb.IsUserOnline(userId) });
     }
 }
