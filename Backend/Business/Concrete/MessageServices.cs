@@ -76,6 +76,10 @@ public class MessageServices : IMessageServices
         var receiverWs = _connectionDb.GetConnection(receiverId);
         var senderWs = _connectionDb.GetConnection(senderId);
 
+        if (receiverWs == null || senderWs == null)
+        {
+            return;
+        }
 
         var res = JsonSerializer.Serialize(new
         {
@@ -88,7 +92,7 @@ public class MessageServices : IMessageServices
             message = true
         });
 
-        if (receiverWs.State == WebSocketState.Open || senderWs.State == WebSocketState.Open)
+        if (receiverWs.State == WebSocketState.Open && senderWs.State == WebSocketState.Open)
         {
             await receiverWs.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(res)), WebSocketMessageType.Text,
                 true,
