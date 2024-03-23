@@ -7,7 +7,7 @@ namespace Backend.Business.Abstract;
 public interface IMessageServices
 {
    public Task Broadcast(string message);
-   public Boolean SaveConnection(long id, WebSocket ws);
+   public void SaveConnection(long id, WebSocket ws);
    public Boolean RemoveConnection(long id);
    public WebSocket GetConnections();
    public long[] GetOnlineUsers();
