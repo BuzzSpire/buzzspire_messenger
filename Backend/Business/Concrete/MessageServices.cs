@@ -40,9 +40,9 @@ public class MessageServices : IMessageServices
         return Task.CompletedTask;
     }
 
-    public Boolean SaveConnection(long id, WebSocket ws)
+    public void SaveConnection(long id, WebSocket ws)
     {
-        return _connectionDb.SaveConnection(id, ws);
+        _connectionDb.SaveConnection(id, ws);
     }
 
     public Boolean RemoveConnection(long id)

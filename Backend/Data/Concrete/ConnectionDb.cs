@@ -14,15 +14,16 @@ public class ConnectionDb : IConnectionDb
         return connection.Value;
     }
 
-    public Boolean SaveConnection(long userId, WebSocket ws)
+    public void SaveConnection(long userId, WebSocket ws)
     {
-        if (!_connections.ContainsKey(userId))
+        if (_connections.ContainsKey(userId))
+        {
+            _connections[userId] = ws;
+        }
+        else
         {
             _connections.Add(userId, ws);
-            return true;
         }
-
-        return false;
     }
 
     public Boolean RemoveConnection(long userId)
