@@ -7,6 +7,7 @@ Buzzspire Messenger is a desktop application that enables real-time messaging by
 
 - **Backend:** C# .NET Core 8
 - **Desktop Application:** Electron TypeScript
+- **Web:** TypeScript, React, Next.js
 
 ## General Purpose
 
