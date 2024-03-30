@@ -14,7 +14,7 @@ This project aims to provide the ability for instant messaging by connecting thr
 
 ## Why This Project?
 
-Contemporary chat applications typically manage all communication through their own servers. However, Private_Chat_APP allows users to have control over a more secure background by utilizing their own servers.
+Contemporary chat applications typically manage all communication through their own servers. However, Buzzspire Messenger allows users to have control over a more secure background by utilizing their own servers.
 
 ## Installation
 
